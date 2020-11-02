@@ -1,0 +1,102 @@
+service: ${self:custom.serviceName}
+
+custom:
+  setupFile: ./setup.${self:provider.stage}.json
+  serviceName: ${file(${self:custom.setupFile}):serviceName}
+  rulesBucket: ${self:custom.serviceName}-${file(${self:custom.setupFile}):rulesBucket}
+  rulesFile: ${file(${self:custom.setupFile}):rulesFile}
+  minTTL: ${file(${self:custom.setupFile}):cloudfront-minTTL}
+  maxTTL: ${file(${self:custom.setupFile}):cloudfront-maxTTL}
+  defaultTTL: ${file(${self:custom.setupFile}):cloudfront-defaultTTL}
+  s3Sync:
+    - bucketName: ${self:custom.rulesBucket} 
+      localDir: ${file(${self:custom.setupFile}):rulesBucket}
+      deleteRemoved: true
+
+plugins:
+  - serverless-plugin-cloudfront-lambda-edge
+  - serverless-s3-sync
+
+package:
+   exclude:
+      - 'node_modules/**'
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: ${opt:stage, 'demo'}
+  region: ${env:region, 'us-east-1'}
+  memorySize: 128
+  timeout: 5
+  stackTags:
+    name: ${self:service}
+  iamRoleStatements:
+    - Effect: 'Allow'
+      Action:
+        - 's3:*'
+      Resource: "*"
+    - Effect: 'Allow'
+      Action: sts:AssumeRole
+      Resource: "*"
+
+functions:
+  http-redirect:
+    handler: functions/index.handler
+    lambdaAtEdge:
+        distribution: 'CloudFrontDistribution'
+        eventType: 'origin-request'
+
+resources:
+   Resources:
+    RulesData:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.rulesBucket}
+
+    IamRoleLambdaExecution:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+                  - edgelambda.amazonaws.com
+                  
+    CloudFrontDistribution:
+      Type: AWS::CloudFront::Distribution
+      Properties:
+        DistributionConfig:
+          Comment: ${self:custom.serviceName}
+          DefaultRootObject: index.html
+
+          DefaultCacheBehavior:
+            TargetOriginId: ${self:custom.serviceName}
+            ViewerProtocolPolicy: 'redirect-to-https'
+            DefaultTTL: ${self:custom.defaultTTL}
+            MaxTTL: ${self:custom.maxTTL}
+            MinTTL: ${self:custom.minTTL}
+            ForwardedValues:
+              QueryString: false
+              Headers:
+                - Host
+
+          Enabled: true
+          
+          Origins:
+            - Id: ${self:custom.serviceName}
+              DomainName: www.google.com
+              CustomOriginConfig:
+                OriginProtocolPolicy: 'https-only'
+              OriginCustomHeaders:
+                - HeaderName: 'bucket'
+                  HeaderValue: ${self:custom.rulesBucket}
+                - HeaderName: 'rules'
+                  HeaderValue: ${self:custom.rulesFile}
+
+    CfOriginAccessIdentity:
+      Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+      Properties:
+        CloudFrontOriginAccessIdentityConfig:
+          Comment: "access-identity-for-${self:custom.serviceName}"

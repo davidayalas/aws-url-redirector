@@ -1,0 +1,8 @@
+{
+    "serviceName" : "cloud-redirect",
+    "rulesBucket" : "rules",
+    "rulesFile" : "rules.csv",
+    "cloudfront-minTTL": 0,
+    "cloudfront-maxTTL": 0,
+    "cloudfront-defaultTTL": 0
+}
