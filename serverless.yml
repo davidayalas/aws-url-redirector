@@ -8,14 +8,27 @@ custom:
   minTTL: ${file(${self:custom.setupFile}):cloudfront-minTTL}
   maxTTL: ${file(${self:custom.setupFile}):cloudfront-maxTTL}
   defaultTTL: ${file(${self:custom.setupFile}):cloudfront-defaultTTL}
+  apiKey: ${file(${self:custom.setupFile}):api-key}
+  fakeOrigin: ${file(${self:custom.setupFile}):fakeOrigin}
+  distributionId: ${file(${self:custom.setupFile}):distributionId}
+  #R53HostedZone: ${file(${self:custom.setupFile}):R53HostedZone}
+  
   s3Sync:
     - bucketName: ${self:custom.rulesBucket} 
       localDir: ${file(${self:custom.setupFile}):rulesBucket}
       deleteRemoved: true
 
+  cfdDomain:
+    domainNames:
+      - "*.itlabs.uoc.es"
+    cloudFront: CloudFrontDistribution
+    retries: 15
+    minimumProtocolVersion: TLSv1.2_2018
+
 plugins:
   - serverless-plugin-cloudfront-lambda-edge
   - serverless-s3-sync
+  - serverless-cloudfront-distribution-certificate
 
 package:
    exclude:
@@ -38,10 +51,25 @@ provider:
     - Effect: 'Allow'
       Action: sts:AssumeRole
       Resource: "*"
+    - Effect: 'Allow'
+      Action: cloudfront:CreateInvalidation
+      Resource: "*"
 
 functions:
+  sign:
+    handler: functions/s3sign/index.handler
+    lambdaAtEdge:
+        distribution: 'CloudFrontDistribution'
+        eventType: 'origin-request'
+        pathPattern: '/sign*'
+  invalidate:
+    handler: functions/cf-invalidate/index.handler
+    lambdaAtEdge:
+        distribution: 'CloudFrontDistribution'
+        eventType: 'origin-request'
+        pathPattern: '/invalidate*'
   http-redirect:
-    handler: functions/index.handler
+    handler: functions/query/index.handler
     lambdaAtEdge:
         distribution: 'CloudFrontDistribution'
         eventType: 'origin-request'
@@ -63,13 +91,33 @@ resources:
                 Service:
                   - lambda.amazonaws.com
                   - edgelambda.amazonaws.com
-                  
+
+    # RouteDNSName:
+    #   Type: AWS::Route53::RecordSetGroup
+    #   Properties:
+    #     HostedZoneId: ${self:custom.R53HostedZone}
+    #     RecordSets:
+    #       - Name: 'drivemonitor.itlabs.uoc.es'
+    #         Type: CNAME
+    #         AliasTarget:
+    #             HostedZoneId: ${self:custom.R53HostedZone}
+    #             DNSName: !GetAtt [CloudFrontDistribution, DomainName]
+    #             EvaluateTargetHealth: false
+    #       - Name: 'redirect.itlabs.uoc.es'
+    #         Type: CNAME
+    #         AliasTarget:
+    #             HostedZoneId: ${self:custom.R53HostedZone}
+    #             DNSName: !GetAtt [CloudFrontDistribution, DomainName]
+    #             EvaluateTargetHealth: false
+
     CloudFrontDistribution:
       Type: AWS::CloudFront::Distribution
       Properties:
         DistributionConfig:
+          Aliases:
+            - 'redirect.itlabs.uoc.es'
+            - 'drivemonitor.itlabs.uoc.es'
           Comment: ${self:custom.serviceName}
-          DefaultRootObject: index.html
 
           DefaultCacheBehavior:
             TargetOriginId: ${self:custom.serviceName}
@@ -82,11 +130,50 @@ resources:
               Headers:
                 - Host
 
+          CacheBehaviors:
+            - TargetOriginId: ${self:custom.serviceName}
+              ViewerProtocolPolicy: 'redirect-to-https'
+              DefaultTTL: 0
+              MaxTTL: 0
+              MinTTL: 0
+              ForwardedValues:
+                QueryString: false
+              AllowedMethods:
+                - GET
+                - HEAD
+                - OPTIONS
+                - PUT
+                - POST
+                - PATCH
+                - DELETE
+              PathPattern: '/sign*'
+
+            - TargetOriginId: ${self:custom.serviceName}
+              ViewerProtocolPolicy: 'redirect-to-https'
+              DefaultTTL: 0
+              MaxTTL: 0
+              MinTTL: 0
+              ForwardedValues:
+                QueryString: false
+              Headers:
+                - x-api-key
+                - invalidatePath
+
+              AllowedMethods:
+                - GET
+                - HEAD
+                - OPTIONS
+                - PUT
+                - POST
+                - PATCH
+                - DELETE
+              PathPattern: '/invalidate*'
+
           Enabled: true
           
           Origins:
             - Id: ${self:custom.serviceName}
-              DomainName: www.google.com
+              DomainName: ${self:custom.fakeOrigin}
               CustomOriginConfig:
                 OriginProtocolPolicy: 'https-only'
               OriginCustomHeaders:
@@ -94,9 +181,9 @@ resources:
                   HeaderValue: ${self:custom.rulesBucket}
                 - HeaderName: 'rules'
                   HeaderValue: ${self:custom.rulesFile}
-
-    CfOriginAccessIdentity:
-      Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
-      Properties:
-        CloudFrontOriginAccessIdentityConfig:
-          Comment: "access-identity-for-${self:custom.serviceName}"
+                - HeaderName: 'role'
+                  HeaderValue: { "Fn::GetAtt" : [ "IamRoleLambdaExecution", "Arn" ] }
+                - HeaderName: 'api-key'
+                  HeaderValue: ${self:custom.apiKey}
+                - HeaderName: 'cloudfrontid'
+                  HeaderValue: ${self:custom.distributionId}

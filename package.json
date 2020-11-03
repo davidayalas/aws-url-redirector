@@ -1,0 +1,12 @@
+{
+    "name": "serverless-dependencies",
+    "version": "0.0.1",
+    "description": "serverless plugins for project",
+    "main": "app.js",
+    "dependencies": {},
+    "devDependencies": {
+        "serverless-domain-manager": "^5.0.0",
+        "serverless-plugin-cloudfront-lambda-edge": "^2.1.0",
+        "serverless-s3-sync": "^1.15.0"
+    }
+}

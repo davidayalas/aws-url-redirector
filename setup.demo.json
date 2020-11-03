@@ -2,7 +2,10 @@
     "serviceName" : "cloud-redirect",
     "rulesBucket" : "rules",
     "rulesFile" : "rules.csv",
-    "cloudfront-minTTL": 0,
-    "cloudfront-maxTTL": 0,
-    "cloudfront-defaultTTL": 0
+    "cloudfront-minTTL": 2592000,
+    "cloudfront-maxTTL": 2592000,
+    "cloudfront-defaultTTL": 2592000,
+    "fakeOrigin" : "www.google.com",
+    "distributionId" : "E29F4EP1EL5J4V",
+    "api-key" : "1234678qwerty"
 }
