@@ -1,25 +1,8 @@
 'use strict';
 
 const AWS = require('aws-sdk');
-const sts = new AWS.STS();
 const s3 = new AWS.S3();
-
-async function setCredentials(role){
-    return new Promise((resolve, reject) => {
-        sts.assumeRole({
-            RoleArn: role,
-            RoleSessionName: 'cloud-redirector'
-        }).promise().then(function(data){
-            AWS.config.accessKeyId = data.Credentials.AccessKeyId;
-            AWS.config.secretAccessKey = data.Credentials.SecretAccessKey;
-            AWS.config.sessionToken = data.Credentials.SessionToken;
-            resolve(data.Credentials);
-        }).catch((err) => {
-            console.log(err, err.stack);
-            reject(err);
-        });
-    });
-};
+const utils = require('../utils');
 
 async function getSignature(params, bucket){
     return new Promise((resolve, reject) => {
@@ -36,14 +19,7 @@ async function getSignature(params, bucket){
             resolve(JSON.stringify(formdata));
           }
         });    
-    })    
-}
-
-function getHeader(obj, header){
-    if(obj[header] && obj[header].length>0 && obj[header][0].value){
-        return obj[header][0].value;
-    }
-    return null;
+    });   
 }
 
 exports.handler = async (event, context, callback) => {
@@ -57,12 +33,12 @@ exports.handler = async (event, context, callback) => {
         headers = event.Records[0].cf.request.headers;
     }
 
-    const role = getHeader(customHeaders,"role");
-    const apiKey = getHeader(customHeaders, "api-key");
-    const bucket = getHeader(customHeaders, "bucket");
-    const rules = getHeader(customHeaders, "rules");
+    const role = utils.getHeader(customHeaders,"role");
+    const apiKey = utils.getHeader(customHeaders, "api-key");
+    const bucket = utils.getHeader(customHeaders, "bucket");
+    const rules = utils.getHeader(customHeaders, "rules");
 
-    const clientApiKey = getHeader(headers, "x-api-key");
+    const clientApiKey = utils.getHeader(headers, "x-api-key");
 
     let response = {
         status: '200',
@@ -77,10 +53,10 @@ exports.handler = async (event, context, callback) => {
         return;
     }
 
-    await setCredentials(role);
+    await utils.setCredentials(AWS, role);
 
     const currentDate = new Date();
-    const expiresMinutes = 120
+    const expiresMinutes = 120;
     const expires = new Date(currentDate.getTime()+(60000*expiresMinutes));
 
     const params = {

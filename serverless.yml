@@ -155,9 +155,9 @@ resources:
               MinTTL: 0
               ForwardedValues:
                 QueryString: false
-              Headers:
-                - x-api-key
-                - invalidatePath
+                Headers:
+                  - x-api-key
+                  - invalidatePath
 
               AllowedMethods:
                 - GET

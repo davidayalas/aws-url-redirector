@@ -1,26 +1,8 @@
 'use strict';
 
 const AWS = require('aws-sdk');
-const sts = new AWS.STS();
 const cloudfront = new AWS.CloudFront();
-
-async function setCredentials(role){
-    return new Promise((resolve, reject) => {
-        sts.assumeRole({
-            RoleArn: role,
-            RoleSessionName: 'cloud-redirector'
-        }).promise().then(function(data){
-            AWS.config.accessKeyId = data.Credentials.AccessKeyId;
-            AWS.config.secretAccessKey = data.Credentials.SecretAccessKey;
-            AWS.config.sessionToken = data.Credentials.SessionToken;
-            resolve(data.Credentials);
-        }).catch((err) => {
-            console.log(err, err.stack);
-            reject(err);
-        });
-    });
-}
-
+const utils = require('../utils');
 
 async function createInvalidation(params){
     return new Promise((resolve, reject) => {
@@ -35,13 +17,6 @@ async function createInvalidation(params){
     });    
 }
 
-function getHeader(obj, header){
-    if(obj[header] && obj[header].length>0 && obj[header][0].value){
-        return obj[header][0].value;
-    }
-    return "";
-}
-
 exports.handler = async (event, context, callback) => {
 
     let customHeaders = null;
@@ -53,13 +28,13 @@ exports.handler = async (event, context, callback) => {
         headers = event.Records[0].cf.request.headers;
     }
 
-    const apiKey = getHeader(customHeaders, "api-key");
-    const role = getHeader(customHeaders, "role");
-    const distributionId = getHeader(customHeaders, "cloudfrontid");
-    let invalidatePath = getHeader(headers, "x-invalidatepath");
-    invalidatePath = !invalidatePath ? "/kkkk*" : invalidatePath;
+    const apiKey = utils.getHeader(customHeaders, "api-key");
+    const role = utils.getHeader(customHeaders, "role");
+    const distributionId = utils.getHeader(customHeaders, "cloudfrontid");
+    let invalidatePath = utils.getHeader(headers, "x-invalidatepath");
+    invalidatePath = !invalidatePath ? "/test*" : invalidatePath;
     
-    const clientApiKey = getHeader(headers, "x-api-key");
+    const clientApiKey = utils.getHeader(headers, "x-api-key");
 
     let response = {
         status: '200',
@@ -74,7 +49,7 @@ exports.handler = async (event, context, callback) => {
         return;
     }
 
-    await setCredentials(role);
+    await utils.setCredentials(AWS, role);
 
     const reference = +new Date;
 

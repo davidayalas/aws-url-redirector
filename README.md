@@ -14,6 +14,10 @@
     * x-api-key: defined in setup.demo.json
     * x-invalidatepath: a string containing the path to invalidate
 
+# Notes
+
+* Distribution id has to be set manually in setup.demo.json after a first deploy of the stack... no way
+
 # Guides
 - https://medium.com/@mnylen/lambda-edge-gotchas-and-tips-93083f8b4152
 
