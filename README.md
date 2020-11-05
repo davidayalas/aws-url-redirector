@@ -16,6 +16,19 @@ Complex rules are the fallback when a path is not found.
 
 You can refresh the regexp file sending a POST request to your cloudfront endpoint. Remember your x-api-key
 
+# Rules example
+
+host                            | path                     | redirect
+--------------------------------|--------------------------|------------------------
+xxxx.cloudfront.net             | /dev                     | https://developer.mozilla.org/  
+subdomain.yourdomain.net        | /search                  | https://www.google  
+
+# Regexp example
+
+host                            | regexp                   | redirect
+--------------------------------|--------------------------|------------------------
+xxxx.cloudfront.net             | /directory?page=(.*)     | https://application.yourdomain/folder/folder1/?page=$1  
+
 
 # Endpoints (behaviors)
 
