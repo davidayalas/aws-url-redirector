@@ -5,6 +5,18 @@
 
 ![](docs/cloud-redirect.png)
 
+# Description
+
+You can setup different rules:
+
+* simple rules (rules.csv)
+* complex rules (regexp.csv)
+
+Complex rules are the fallback when a path is not found.
+
+You can refresh the regexp file sending a POST request to your cloudfront endpoint. Remember your x-api-key
+
+
 # Endpoints (behaviors)
 
 * /${path} --> it will search for path and the host requested into the CSV
