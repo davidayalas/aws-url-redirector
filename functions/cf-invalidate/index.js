@@ -31,8 +31,10 @@ exports.handler = async (event, context, callback) => {
     const apiKey = utils.getHeader(customHeaders, "api-key");
     const role = utils.getHeader(customHeaders, "role");
     const distributionId = utils.getHeader(customHeaders, "cloudfrontid");
-    let invalidatePath = utils.getHeader(headers, "x-invalidatepath");
-    invalidatePath = !invalidatePath ? "/test*" : invalidatePath;
+    let invalidatePaths = utils.getHeader(headers, "x-invalidatepaths");
+    invalidatePaths = !invalidatePaths ? "" : invalidatePaths;
+    invalidatePaths = invalidatePaths.split(",");
+    invalidatePaths = invalidatePaths.map(Function.prototype.call, String.prototype.trim);
     
     const clientApiKey = utils.getHeader(headers, "x-api-key");
 
@@ -58,13 +60,13 @@ exports.handler = async (event, context, callback) => {
         InvalidationBatch: { 
             CallerReference: ""+reference,
             Paths: { 
-                Quantity: '1', 
-                Items: [invalidatePath]
+                Quantity: invalidatePaths.length, 
+                Items: invalidatePaths
             }
         }
     };
-
-    const result = await createInvalidation(params);
+    
+    const result = invalidatePaths.length>0? await createInvalidation(params) : "error";
     if(result!=="error"){
         response.headers = {
             'content-type': [{
