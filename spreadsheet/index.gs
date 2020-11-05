@@ -6,19 +6,24 @@ const secret = scriptProperties.getProperty("SECRET");
 const dns = scriptProperties.getProperty("cloudfront");
 const bucket = scriptProperties.getProperty("bucket");
 const rulesFile = scriptProperties.getProperty("rules");
+const regexpFile = scriptProperties.getProperty("regexp");
 
 const rulesSheet = "Rules";
 const invalidationsSheet = "Invalidations";
+const regexpSheet = "RegExp";
 
 const ss = SpreadsheetApp.getActiveSpreadsheet();
 const rules = ss.getSheetByName(rulesSheet);
 const invalidations = ss.getSheetByName(invalidationsSheet);
+const regExp = ss.getSheetByName(regexpSheet);
 
 function onOpen() {
   var ui = SpreadsheetApp.getUi();
 
   ui.createMenu('Cloud Redirector')
-      .addItem('Sincronitzar regles', "s3upload")
+      .addItem('Sincronitzar regles', "s3uploadRules")
+      .addItem('Sincronitzar regexp', "s3uploadRegexp")
+      .addItem('Forçar invalidació', "forceInvalidation")
       .addToUi();
   
   
@@ -45,9 +50,9 @@ function change(e){
   //Browser.msgBox(e.range.getRow())
 }
 
-function getCSVData(){
+function getCSVData(_sheet){
 
-  const range = rules.getDataRange();
+  const range = _sheet.getDataRange();
   const values = range.getValues();
   let rows = [];
   let row;
@@ -89,10 +94,43 @@ function invalidateRules(){
   range.setValues(rows);
 }
 
-function s3upload(){
+function s3uploadRules(){
   const s3 = S3.getInstance(key, secret);
-  const blob = Utilities.newBlob(getCSVData().join("\n", "text/csv"));
+  const blob = Utilities.newBlob(getCSVData(rules).join("\n", "text/csv"));
   s3.putObject(bucket, rulesFile, blob, {logRequests:true});
   invalidateRules();
+  Browser.msgBox("Sincronitzat!");
+}
+
+function forceInvalidation(){
+  const paths = Browser.inputBox("Paths a invalidar (separat per coma)");
+  if(!paths){
+    Browser.msgBox("Has d'informar un o més paths!");
+  }
+  const options = {
+    'method' : 'post',
+    'headers' : {
+      'x-api-key' : apikey,
+      'x-invalidatepaths': paths
+    }
+  };
+
+  const endpoint = `https://${dns}/invalidate/`;
+  UrlFetchApp.fetch(endpoint, options);
+  Browser.msgBox("Petició enviada!");
+}
+
+function s3uploadRegexp(){
+  const s3 = S3.getInstance(key, secret);
+  const blob = Utilities.newBlob(getCSVData(regExp).join("\n", "text/csv"));
+  s3.putObject(bucket, regexpFile, blob, {logRequests:true});
+  let options = {
+    'method' : 'post',
+    'headers' : {
+      'x-api-key' : apikey,
+    }
+  };
+  const endpoint = `https://${dns}/`;
+  UrlFetchApp.fetch(endpoint, options);
   Browser.msgBox("Sincronitzat!");
 }

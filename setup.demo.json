@@ -2,6 +2,7 @@
     "serviceName" : "cloud-redirect",
     "rulesBucket" : "rules",
     "rulesFile" : "rules.csv",
+    "regexpFile" : "regexp.csv",
     "cloudfront-minTTL": 2592000,
     "cloudfront-maxTTL": 2592000,
     "cloudfront-defaultTTL": 2592000,

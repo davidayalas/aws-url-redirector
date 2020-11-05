@@ -5,6 +5,7 @@ custom:
   serviceName: ${file(${self:custom.setupFile}):serviceName}
   rulesBucket: ${self:custom.serviceName}-${file(${self:custom.setupFile}):rulesBucket}
   rulesFile: ${file(${self:custom.setupFile}):rulesFile}
+  regexpFile: ${file(${self:custom.setupFile}):regexpFile}
   minTTL: ${file(${self:custom.setupFile}):cloudfront-minTTL}
   maxTTL: ${file(${self:custom.setupFile}):cloudfront-maxTTL}
   defaultTTL: ${file(${self:custom.setupFile}):cloudfront-defaultTTL}
@@ -129,6 +130,14 @@ resources:
               QueryString: false
               Headers:
                 - Host
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - POST
+              - PATCH
+              - DELETE
 
           CacheBehaviors:
             - TargetOriginId: ${self:custom.serviceName}
@@ -181,6 +190,8 @@ resources:
                   HeaderValue: ${self:custom.rulesBucket}
                 - HeaderName: 'rules'
                   HeaderValue: ${self:custom.rulesFile}
+                - HeaderName: 'regexp'
+                  HeaderValue: ${self:custom.regexpFile}
                 - HeaderName: 'role'
                   HeaderValue: { "Fn::GetAtt" : [ "IamRoleLambdaExecution", "Arn" ] }
                 - HeaderName: 'api-key'

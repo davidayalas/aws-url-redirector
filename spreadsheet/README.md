@@ -9,4 +9,5 @@
     * cloudfront: cloudfront host (no protocol, example xxxxxx.cloudfront.net)
     * x-api-key: setted in deployment of Cloud Redirector
     * bucket
-    * rules: csv file  
+    * rules: rules csv file ("rules.csv") 
+    * regexp: regexp csv file ("regexp.csv") 
