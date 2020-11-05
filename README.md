@@ -8,11 +8,11 @@
 # Endpoints (behaviors)
 
 * /${path} --> it will search for path and the host requested into the CSV
-* /sign/ --> it will return a S3 signed form to upload a rules.csv file. Params:
-    * x-api-key: defined in setup.demo.json
 * /invalidate/ --> POST. It will generate a invalidation request. Params
     * x-api-key: defined in setup.demo.json
     * x-invalidatepath: a string containing the path to invalidate
+* /sign/ --> it will return a S3 signed form to upload a rules.csv file (not used at this time). Params:
+    * x-api-key: defined in setup.demo.json
 
 # Notes
 
@@ -23,5 +23,4 @@
 
 # TODO
 
-- Sheet to manage redirect rules
 - Terraform template
