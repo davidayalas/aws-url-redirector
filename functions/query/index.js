@@ -14,7 +14,6 @@ async function checkRegexp(bucket, regFile, host, uri){
         }));
     }
     
-    let found = false;
     let re;
 
     for(let i=0,z=regexp.length; i<z; i++){
@@ -22,8 +21,7 @@ async function checkRegexp(bucket, regFile, host, uri){
             continue;
         }
         re = new RegExp(regexp[i][1]);
-        found = re.test(uri);
-        if(found){
+        if(re.test(uri)){
             return uri.replace(re, regexp[i][2]);
         }
     }
@@ -32,14 +30,7 @@ async function checkRegexp(bucket, regFile, host, uri){
   
 exports.handler = async (event, context, callback) => {
     
-    let customHeaders = null;
-    let headers = null;
-    if(event.Records[0].cf.request && event.Records[0].cf.request.origin && event.Records[0].cf.request.origin.custom && event.Records[0].cf.request.origin.custom.customHeaders){
-        customHeaders = event.Records[0].cf.request.origin.custom.customHeaders;
-    }
-    if(event.Records[0].cf.request.headers){
-        headers = event.Records[0].cf.request.headers;
-    }    
+    const [customHeaders, headers] = utils.getHeaderObjects(event);
     
     const rules = utils.getHeader(customHeaders, "rules");
     const regexpfile = utils.getHeader(customHeaders, "regexp");
@@ -88,7 +79,7 @@ exports.handler = async (event, context, callback) => {
             response.headers.location[0].value = result;
         }else{
             response.status = 404;
-            response.statusDescription = "Not found " + `select s.redirect from s3object s where s.host='${event.Records[0].cf.request.headers.host[0].value}' and s.path='${event.Records[0].cf.request.uri==="/" ? "" : event.Records[0].cf.request.uri}' limit 1`;
+            response.statusDescription = "Not found";
         }
     }
 

@@ -120,25 +120,6 @@ resources:
             - 'drivemonitor.itlabs.uoc.es'
           Comment: ${self:custom.serviceName}
 
-          DefaultCacheBehavior:
-            TargetOriginId: ${self:custom.serviceName}
-            ViewerProtocolPolicy: 'redirect-to-https'
-            DefaultTTL: ${self:custom.defaultTTL}
-            MaxTTL: ${self:custom.maxTTL}
-            MinTTL: ${self:custom.minTTL}
-            ForwardedValues:
-              QueryString: false
-              Headers:
-                - Host
-            AllowedMethods:
-              - GET
-              - HEAD
-              - OPTIONS
-              - PUT
-              - POST
-              - PATCH
-              - DELETE
-
           CacheBehaviors:
             - TargetOriginId: ${self:custom.serviceName}
               ViewerProtocolPolicy: 'redirect-to-https'
@@ -177,6 +158,25 @@ resources:
                 - PATCH
                 - DELETE
               PathPattern: '/invalidate*'
+
+          DefaultCacheBehavior:
+            TargetOriginId: ${self:custom.serviceName}
+            ViewerProtocolPolicy: 'redirect-to-https'
+            DefaultTTL: ${self:custom.defaultTTL}
+            MaxTTL: ${self:custom.maxTTL}
+            MinTTL: ${self:custom.minTTL}
+            ForwardedValues:
+              QueryString: false
+              Headers:
+                - Host
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - POST
+              - PATCH
+              - DELETE
 
           Enabled: true
           

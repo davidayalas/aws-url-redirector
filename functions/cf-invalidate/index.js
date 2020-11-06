@@ -19,14 +19,7 @@ async function createInvalidation(params){
 
 exports.handler = async (event, context, callback) => {
 
-    let customHeaders = null;
-    let headers = null;
-    if(event.Records[0].cf.request && event.Records[0].cf.request.origin && event.Records[0].cf.request.origin.custom && event.Records[0].cf.request.origin.custom.customHeaders){
-        customHeaders = event.Records[0].cf.request.origin.custom.customHeaders;
-    }
-    if(event.Records[0].cf.request.headers){
-        headers = event.Records[0].cf.request.headers;
-    }
+    const [customHeaders, headers] = utils.getHeaderObjects(event);
 
     const apiKey = utils.getHeader(customHeaders, "api-key");
     const role = utils.getHeader(customHeaders, "role");
@@ -81,5 +74,4 @@ exports.handler = async (event, context, callback) => {
     }
     
     callback(null, response);
-
 };

@@ -103,10 +103,20 @@ function s3uploadRules(){
 }
 
 function forceInvalidation(){
-  const paths = Browser.inputBox("Paths a invalidar (separat per coma)");
+  let paths = Browser.inputBox("Paths a invalidar (separat per coma)");
   if(!paths){
     Browser.msgBox("Has d'informar un o més paths!");
+    return;
   }
+  
+  if(paths==='cancel'){
+    return;
+  }
+  
+  paths = paths.split(",");
+  paths = paths.map(item => item.charAt(0)!=="/" ? "/" + item : item);
+  paths = paths.join(",");
+    
   const options = {
     'method' : 'post',
     'headers' : {
