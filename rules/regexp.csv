@@ -1,6 +1,2 @@
 host,regexp,redirect
-djnsmfgl8j6jr.cloudfront.net,/ca/resources/e-resources/(.*),http://biblioteca.uoc.edu/ca/resources/e-resources/$1
-djnsmfgl8j6jr.cloudfront.net,/portal/(.*)/sala-de-premsa/publicacions/(.*),/portal/$1/viu-la-uoc/xarxes-socials/index.html
-djnsmfgl8j6jr.cloudfront.net,/lletra/(.*)$,http://lletra.uoc.edu/$1
-djnsmfgl8j6jr.cloudfront.net,/ojs(.*),http://portal2.uoc.edu/ojs$1
-djnsmfgl8j6jr.cloudfront.net,/portal/(castellano|catala|english)/recerca/altra_recerca/index.php($|/$),http://in3.uoc.edu
+xxxxxxxxx.cloudfront.net,/search/(.*),https://stackoverflow.com/search?q=$1

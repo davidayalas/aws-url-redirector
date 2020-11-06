@@ -1,10 +1,5 @@
 host,path,redirect
-djnsmfgl8j6jr.cloudfront.net,/test,https://developers.google.com/speed/pagespeed/insights/
-djnsmfgl8j6jr.cloudfront.net,/dev,https://developer.mozilla.org/
-djnsmfgl8j6jr.cloudfront.net,/uoc,https://www.uoc.edu
-djnsmfgl8j6jr.cloudfront.net,/atencio-telefonica,https://www.uoc.edu/portal/ca/_peu/avis_legal/politica-privacitat/atencio-telefonica.html
-djnsmfgl8j6jr.cloudfront.net,/google,https://www.google.com
-djnsmfgl8j6jr.cloudfront.net,,https://www.uoc.edu
-redirect.itlabs.uoc.es,/drivemonitor,https://www.google.com/appserve/mkt/p/AD-FnEwhH6RPzFk0KQZoHCUoz7jKqmjuNHYE_6cQ1BhAtBEUwTDxoYUkCBs1dsDVqBqNBXg-1_yK4cFtkjISOhnrvGrGy-k_gTWciipencz44VFZ1pyf3ghzb_aoO7sKuZ_Bu4jtPxH3y55ywL5ksm3VdMMWN0Ch0uzEQphXqQdvYEouvrJDL3xy0bHGRckRh0T7
-drivemonitor.itlabs.uoc.es,,https://www.google.com/appserve/mkt/p/AD-FnEwhH6RPzFk0KQZoHCUoz7jKqmjuNHYE_6cQ1BhAtBEUwTDxoYUkCBs1dsDVqBqNBXg-1_yK4cFtkjISOhnrvGrGy-k_gTWciipencz44VFZ1pyf3ghzb_aoO7sKuZ_Bu4jtPxH3y55ywL5ksm3VdMMWN0Ch0uzEQphXqQdvYEouvrJDL3xy0bHGRckRh0T7
-drivemonitor.itlabs.uoc.es,/d,https://www.google.com/appserve/mkt/p/AD-FnEwhH6RPzFk0KQZoHCUoz7jKqmjuNHYE_6cQ1BhAtBEUwTDxoYUkCBs1dsDVqBqNBXg-1_yK4cFtkjISOhnrvGrGy-k_gTWciipencz44VFZ1pyf3ghzb_aoO7sKuZ_Bu4jtPxH3y55ywL5ksm3VdMMWN0Ch0uzEQphXqQdvYEouvrJDL3xy0bHGRckRh0T7
+xxxxxxxxx.cloudfront.net,/test,https://developers.google.com/speed/pagespeed/insights/
+xxxxxxxxx.cloudfront.net,/dev,https://developer.mozilla.org/
+yyyyyyyyy.cloudfront.net,/foo,https://www.google.com
+yyyyyyyyy.cloudfront.net,/bar,https://www.stackoverflow.com
