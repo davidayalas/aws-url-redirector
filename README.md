@@ -25,7 +25,7 @@ Other variables are available in [setup.demo.json](setup.demo.json):
 * x-api-key to invalidate cache
 * a fake origin that never will be reached 
 
-You can have serverals DNS over a distribution, and rules and regexp are dependant on host domain.
+You can have serveral DNS over a distribution, and rules and regexp are dependant on host domain.
 
 ## Rules example format
 
