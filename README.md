@@ -32,7 +32,7 @@ You can have serveral DNS over a distribution, and rules and regexp are dependan
 host                            | path                     | redirect
 --------------------------------|--------------------------|------------------------
 xxxx.cloudfront.net             | /dev                     | https://developer.mozilla.org/  
-subdomain.yourdomain.net        | /search                  | https://www.google  
+subdomain.yourdomain.net        | /search                  | https://www.google.com  
 
 ## Regexp example format
 
