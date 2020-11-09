@@ -4,14 +4,17 @@ const s3select = require("./s3select");
 const utils = require("../utils");
 
 let regexp;
+let regexpTimeStamp = null;
 
-async function checkRegexp(bucket, regFile, host, uri){
-    if(!regexp){
+
+async function checkRegexp(bucket, regFile, host, uri, ttl){
+    if(!regexp || (+new Date)>regexpTimeStamp){
         regexp = JSON.parse(await s3select.query({
           "Bucket" : bucket,
           "Key": regFile, 
           "Expression": `select * from s3object s`
         }));
+        regexpTimeStamp = (+new Date)+ttl;
     }
     
     let re;
@@ -34,9 +37,8 @@ exports.handler = async (event, context, callback) => {
     
     const rules = utils.getHeader(customHeaders, "rules");
     const regexpfile = utils.getHeader(customHeaders, "regexp");
-    const apiKey = utils.getHeader(customHeaders, "api-key");
-    const clientApiKey = utils.getHeader(headers, "x-api-key");
     const bucket = utils.getHeader(customHeaders, "bucket");
+    const regexpTTL = utils.getHeader(customHeaders, "regexpTTL") || 10000;
     
     const host = utils.getHeader(headers,"host");
     let uri = event.Records[0].cf.request.uri;
@@ -57,14 +59,6 @@ exports.handler = async (event, context, callback) => {
         },
     };
 
-    if (event.Records[0].cf.request.method==='POST' && apiKey===clientApiKey){
-        regexp=null;
-        response.status = "200";
-        response.statusDescription = 'Regexp file refresh';
-        callback(null, response);
-        return;
-    }
-    
     const result = JSON.parse(await s3select.query({
       "Bucket" : bucket,
       "Key": rules, 
@@ -74,7 +68,7 @@ exports.handler = async (event, context, callback) => {
     if(result.length>0){
         response.headers.location[0].value = result[0][0];
     }else{
-        const result = await checkRegexp(bucket, regexpfile, host, uri);
+        const result = await checkRegexp(bucket, regexpfile, host, uri, regexpTTL);
         if(result){
             response.headers.location[0].value = result;
         }else{

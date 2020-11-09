@@ -6,6 +6,7 @@ custom:
   rulesBucket: ${self:custom.serviceName}-${file(${self:custom.setupFile}):rulesBucket}
   rulesFile: ${file(${self:custom.setupFile}):rulesFile}
   regexpFile: ${file(${self:custom.setupFile}):regexpFile}
+  regexpFileTTL: ${file(${self:custom.setupFile}):regexpFileTTL}
   minTTL: ${file(${self:custom.setupFile}):cloudfront-minTTL}
   maxTTL: ${file(${self:custom.setupFile}):cloudfront-maxTTL}
   defaultTTL: ${file(${self:custom.setupFile}):cloudfront-defaultTTL}
@@ -198,3 +199,5 @@ resources:
                   HeaderValue: ${self:custom.apiKey}
                 - HeaderName: 'cloudfrontid'
                   HeaderValue: ${self:custom.distributionId}
+                - HeaderName: 'regexpTTL'
+                  HeaderValue: ${self:custom.regexpFileTTL}

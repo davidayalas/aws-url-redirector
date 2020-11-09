@@ -25,11 +25,6 @@ function onOpen() {
       .addItem('Sincronitzar regexp', "s3uploadRegexp")
       .addItem('Forçar invalidació', "forceInvalidation")
       .addToUi();
-  
-  
-  ScriptApp.newTrigger('change')
-    .forSpreadsheet(ss)
-    .onChange()
 }
 
 function onEdit(e) {
@@ -40,14 +35,6 @@ function onEdit(e) {
   let value = rules.getRange("B"+row).getValue();
   value = value==="" ? "/" : value;
   invalidations.appendRow([value])
-}
-
-function change(e){
-  //Browser.msgBox(e)
-  if(e.source.getActiveSheet().getName()!==rulesSheet){
-    return; 
-  }
-  //Browser.msgBox(e.range.getRow())
 }
 
 function getCSVData(_sheet){
@@ -140,7 +127,7 @@ function s3uploadRegexp(){
       'x-api-key' : apikey,
     }
   };
-  const endpoint = `https://${dns}/`;
-  UrlFetchApp.fetch(endpoint, options);
+  /*const endpoint = `https://${dns}/`;
+  UrlFetchApp.fetch(endpoint, options);*/
   Browser.msgBox("Sincronitzat!");
 }

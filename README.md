@@ -24,6 +24,7 @@ Other variables are available in [setup.demo.json](setup.demo.json):
 * Bucket and files names
 * x-api-key to invalidate cache
 * a fake origin that never will be reached 
+* TTL for regexp file (avoid continuous S3 select)
 
 You can have serveral DNS over a distribution, and rules and regexp are dependant on host domain.
 
@@ -44,8 +45,7 @@ xxxx.cloudfront.net             | /directory?page=(.*)     | https://application
 # Endpoints (cloudfront behaviors)
 
 * **/{whatever}** > it will search for {whatever} and the host requested into the CSV
-    * first search is into simple rules csv. If not found, it maps query against regexp file. 
-    * regexp file is "cached" to avoid continuous S3Select queries. You can refresh it sending a POST request to your cloudfront endpoint withyour x-api-key
+    * first search is into simple rules csv. If not found, it maps query against regexp file (default cache 300000 millis / 5 minutes). You can setup it in setup.demo.json.
     * if a path is found, a 301 redirect is returned. If not, 404. 
 * **/invalidate/** --> POST. It will generate a invalidation request. Params
     * x-api-key: defined in setup.demo.json
