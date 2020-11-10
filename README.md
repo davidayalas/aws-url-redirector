@@ -1,4 +1,4 @@
-# Universal cloud redirector
+# Cloud Mod Rewrite
 
 Motivation: replace Apache & Nginx rewrite rules and make them cloud and "business" friendly.
 
