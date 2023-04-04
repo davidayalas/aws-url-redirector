@@ -65,7 +65,8 @@ function invalidateRules(){
     'method' : 'post',
     'headers' : {
       'x-api-key' : apikey,
-    }
+    },
+    'muteHttpExceptions' : true
   };
 
   const endpoint = `https://${dns}/invalidate/`;

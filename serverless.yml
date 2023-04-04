@@ -20,50 +20,46 @@ custom:
       localDir: ${file(${self:custom.setupFile}):rulesBucket}
       deleteRemoved: true
 
-  cfdDomain:
-    domainNames:
-      - "*.itlabs.uoc.es"
-    cloudFront: CloudFrontDistribution
-    retries: 15
-    minimumProtocolVersion: TLSv1.2_2018
+  #cfdDomain:
+  #  domainNames:
+  #    - "*.labs.xxxx.es"
+  #  cloudFront: CloudFrontDistribution
+  #  retries: 15
+  #  minimumProtocolVersion: TLSv1.2_2018
 
 plugins:
-  - serverless-plugin-cloudfront-lambda-edge
+  - '@silvermine/serverless-plugin-cloudfront-lambda-edge'
   - serverless-s3-sync
-  - serverless-cloudfront-distribution-certificate
+#  - serverless-cloudfront-distribution-certificate
 
 package:
-   exclude:
-      - 'node_modules/**'
+   patterns:
+      - '!node_modules/**'
 
 provider:
   name: aws
-  runtime: nodejs12.x
+  runtime: nodejs18.x
   stage: ${opt:stage, 'demo'}
   region: ${env:region, 'us-east-1'}
   memorySize: 128
   timeout: 5
   stackTags:
     name: ${self:service}
-  iamRoleStatements:
-    - Effect: 'Allow'
-      Action:
-        - 's3:*'
-      Resource: "*"
-    - Effect: 'Allow'
-      Action: sts:AssumeRole
-      Resource: "*"
-    - Effect: 'Allow'
-      Action: cloudfront:CreateInvalidation
-      Resource: "*"
+  iam:
+    role:
+      statements:
+        - Effect: 'Allow'
+          Action:
+            - 's3:*'
+          Resource: "*"
+        - Effect: 'Allow'
+          Action: sts:AssumeRole
+          Resource: "*"
+        - Effect: 'Allow'
+          Action: cloudfront:CreateInvalidation
+          Resource: "*"
 
 functions:
-  sign:
-    handler: functions/s3sign/index.handler
-    lambdaAtEdge:
-        distribution: 'CloudFrontDistribution'
-        eventType: 'origin-request'
-        pathPattern: '/sign*'
   invalidate:
     handler: functions/cf-invalidate/index.handler
     lambdaAtEdge:
@@ -116,9 +112,9 @@ resources:
       Type: AWS::CloudFront::Distribution
       Properties:
         DistributionConfig:
-          Aliases:
-            - 'redirect.itlabs.uoc.es'
-            - 'drivemonitor.itlabs.uoc.es'
+          #Aliases:
+          #  - 'redirect.labs.xxxx.es'
+          #  - 'domain.labs.xxxx.es'
           Comment: ${self:custom.serviceName}
 
           CacheBehaviors:

@@ -1,5 +1,5 @@
 {
-    "serviceName" : "cloud-redirect",
+    "serviceName" : "cloud-redirect-23",
     "rulesBucket" : "rules",
     "rulesFile" : "rules.csv",
     "regexpFile" : "regexp.csv",
@@ -8,6 +8,6 @@
     "cloudfront-maxTTL": 2592000,
     "cloudfront-defaultTTL": 2592000,
     "fakeOrigin" : "www.google.com",
-    "distributionId" : "E29F4EP1EL5J4V",
-    "api-key" : "1234678qwerty"
+    "distributionId" : "XXXXXXXXXXXX",
+    "api-key" : "12345678qwerty"
 }

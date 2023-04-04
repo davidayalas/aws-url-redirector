@@ -1,5 +1,6 @@
-const aws = require('aws-sdk');
-const S3 = new aws.S3({ apiVersion: '2006-03-01', region: process.env.REGION || 'eu-west-1' });
+const { SelectObjectContentCommand, S3Client } = require('@aws-sdk/client-s3');
+
+const client = new S3Client({ apiVersion: '2006-03-01', region: process.env.REGION || 'us-east-1' });
 
 /**
  * Deep extension of objects, for completing default params with setup
@@ -26,48 +27,40 @@ const extend = (toExtend, toApply) => {
  */
  const select = async (params) => {
 
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
 
-    S3.selectObjectContent(params, (err, data) => {
+    const command = new SelectObjectContentCommand(params);
 
-      if(err){
-        resolve(`{"error":"${err.message}"}`);
-        return;
-      }
-
-      if(data===null){
-        resolve("[]");
-        return;
-      }
-
-      const eventStream = data.Payload;
-      let records = [];
-      
-      eventStream.on('data', (event) => {
-        if(event.Records){
-          records.push(event.Records.Payload);
-        }else if(event.Stats) {
-          if(event.Stats.Details.BytesReturned===0){
-            resolve("[]");
-          }
-        }
-      });
+    let data;
     
-      eventStream.on('error', (err) => {
-        reject(err.name);
-      });
+    try{
+      data = await client.send(command);
+    }catch(err){
+      resolve(`{"error":"${err.message}"}`);
+      return;
+    }
+
+    const chunks = [];
+    for await (const value of data.Payload) {
+      if (value.Records) {
+        chunks.push(value.Records.Payload);
+      }
+    }
     
-      eventStream.on('end', () => {
-        // Finished receiving events from S3
-        if(params.OutputSerialization.CSV){
-          records = Buffer.concat(records).toString('utf8').replace(/\r/g,"").split(params.OutputSerialization.CSV.RecordDelimiter);
-          records.pop();
-          resolve(`[[${records.join("],[")}]]`);
-        }else if(params.OutputSerialization.JSON){
-          resolve(`[${Buffer.concat(records).toString('utf8').replace(/\n/g,'').replace(/}{/g, '},{')}]`);
-        }
-      });
-    });
+    if(chunks.length===0){
+      resolve("[]");
+      return;
+    }
+
+    let records = [];
+    if(params.OutputSerialization.CSV){
+      records = Buffer.concat(chunks).toString('utf8').replace(/\r/g,"").split(params.OutputSerialization.CSV.RecordDelimiter);
+      records.pop();
+      resolve(`[[${records.join("],[")}]]`);
+    }else if(params.OutputSerialization.JSON){
+      resolve(`[${Buffer.concat(chunks).toString('utf8').replace(/\n/g,'').replace(/}{/g, '},{')}]`);
+    }
+
   });
 
 };

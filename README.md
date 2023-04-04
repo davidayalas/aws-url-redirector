@@ -11,6 +11,14 @@ Key parts:
 
 # How to setup
 
+## Deploy
+
+        $ cd [project folder]
+        $ npm --prefix ./functions install ./functions
+        $ sls deploy
+
+## Rewrite rules
+
 You can setup different rules:
 
 * simple rules (rules.csv)

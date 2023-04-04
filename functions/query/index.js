@@ -6,7 +6,6 @@ const utils = require("../utils");
 let regexp;
 let regexpTimeStamp = null;
 
-
 async function checkRegexp(bucket, regFile, host, uri, ttl){
     if(!regexp || (+new Date)>regexpTimeStamp){
         regexp = JSON.parse(await s3select.query({
@@ -48,11 +47,11 @@ exports.handler = async (event, context, callback) => {
         status: '301',
         statusDescription: 'Found',
         headers: {
-            location: [{
+            "location": [{
                 key: 'Location',
                 value : ''
             }],
-            "Cache-Control": [{
+            "cache-control": [{
                 key: 'Cache-Control',
                 value: 'public, no-cache'
             }]
