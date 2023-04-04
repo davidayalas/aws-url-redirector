@@ -58,8 +58,6 @@ xxxx.cloudfront.net             | /directory?page=(.*)     | https://application
 * **/invalidate/** --> POST. It will generate a invalidation request. Params
     * x-api-key: defined in setup.demo.json
     * x-invalidatepaths: a string containing the paths to invalidate, comma separated
-* /sign/ --> it will return a S3 signed form to upload a rules.csv file (not used at this time). Params:
-    * x-api-key: defined in setup.demo.json
 
 # Notes
 
